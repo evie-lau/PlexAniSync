@@ -2,9 +2,11 @@ FROM python:3.9 AS builder
 
 RUN apt-get update && \
     apt-get install -y \
-    build-essential \
+    build-essential rustc git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --upgrade pip
+COPY Docker/Tautulli/pip.conf /etc/pip.conf
 COPY requirements.txt .
 # install dependencies to the local user directory (eg. /root/.local)
 RUN pip install --user --no-warn-script-location -r requirements.txt
@@ -14,11 +16,10 @@ FROM tautulli/tautulli
 WORKDIR /plexanisync
 
 # copy only the dependencies installation from the 1st stage image
-COPY --from=builder /root/.local /root/.local
-RUN chmod -R a+rX /root
+COPY --from=builder --chown=tautulli:tautulli /root/.local /home/tautulli/.local
 # update PATH environment variable
-ENV PATH=/root/.local:$PATH
-ENV PYTHONPATH=/root/.local/lib/python3.9/site-packages
+ENV PATH=/home/tautulli/.local:$PATH
+ENV PYTHONPATH=/home/tautulli/.local/lib/python3.9/site-packages
 
 ENV PLEX_SECTION=Anime \
     PLEX_URL=http://127.0.0.1:32400 \
