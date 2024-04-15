@@ -32,6 +32,7 @@ class PlexWatchedSeries:
     title: str
     title_sort: str
     title_original: str
+    guid: str
     year: int
     seasons: List[PlexSeason]
     anilist_id: Optional[int]
@@ -164,7 +165,7 @@ class PlexModule:
         return shows_filtered
 
     def get_watched_shows(self, shows: List[Show]) -> Optional[List[PlexWatchedSeries]]:
-        logger.info("Retrieving watch count for series")
+        logger.debug("Retrieving watch count for series")
         watched_series: List[PlexWatchedSeries] = []
         ovas_found = 0
 
@@ -220,6 +221,7 @@ class PlexModule:
                             show.title.strip(),
                             show.titleSort.strip(),
                             show.originalTitle.strip(),
+                            show.guid,
                             year,
                             seasons,
                             anilist_id,
@@ -259,6 +261,7 @@ class PlexModule:
                             show.title.strip(),
                             show.titleSort.strip(),
                             show.originalTitle.strip(),
+                            show.guid,
                             year,
                             [PlexSeason(1, rating, 1, 1, 1)],
                             anilist_id,
@@ -287,7 +290,7 @@ class PlexModule:
         # len(watched_episodes_of_season) only works when the user didn't skip any episodes
         episodes_watched = max(map(lambda e: int(e.index), watched_episodes_of_season), default=0)
 
-        logger.info(f'{episodes_watched} episodes watched for {season.parentTitle} season {season.seasonNumber}')
+        logger.debug(f'{episodes_watched} episodes watched for {season.parentTitle} season {season.seasonNumber}')
         return episodes_watched
 
     def __get_first_episode_for_show_season(self, season: Season) -> int:
